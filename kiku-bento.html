@@ -330,10 +330,24 @@ async function openPayment() {
   const tax = Math.round(sub * 0.08);
   const total = sub + tax;
 
-  const name = document.getElementById('customer-name').value.trim();
-  const email = document.getElementById('customer-email').value.trim();
-  const phone = document.getElementById('customer-phone').value.trim();
-  const note = document.getElementById('customer-note').value.trim();
+  const nameEl = document.getElementById('customer-name');
+  const emailEl = document.getElementById('customer-email');
+  const phoneEl = document.getElementById('customer-phone');
+  const noteEl = document.getElementById('customer-note');
+
+  if (!nameEl || !emailEl || !phoneEl) {
+    alert('お客様情報を入力してください。');
+    return;
+  }
+
+  const name = nameEl.value.trim();
+  const email = emailEl.value.trim();
+  const phone = phoneEl.value.trim();
+  const note = noteEl ? noteEl.value.trim() : '';
+
+  if (!name) { alert('お名前をご入力ください。'); return; }
+  if (!phone) { alert('電話番号をご入力ください。'); return; }
+  if (!email) { alert('メールアドレスをご入力ください。'); return; }
 
   try {
     const orderNote = `受け取り日：${sd || '未選択'} / お名前：${name} / 電話：${phone} / 備考：${note}`;
