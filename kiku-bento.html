@@ -283,10 +283,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 <div class="sec-head"><div class="shr"><div class="shrl"></div><div class="shrd"></div><div class="shrl"></div></div><h2 class="M">ご連絡先の入力</h2></div>
 <div class="fwrap">
   <div class="fn">ご注文確定後、<strong>確認メールをお送りします。</strong>受け取り当日の詳細については別途ご連絡いたします。</div>
-  <div class="fg"><div class="flbl M">お名前 <span class="rq">必須</span></div><input class="fi" type="text" placeholder="山田 太郎"></div>
-  <div class="fg"><div class="flbl M">電話番号 <span class="rq">必須</span></div><input class="fi" type="tel" placeholder="090-0000-0000"></div>
-  <div class="fg"><div class="flbl M">メールアドレス <span class="rq">必須</span></div><input class="fi" type="email" placeholder="example@email.com"><div class="fh">注文確認メールをお送りします</div></div>
-  <div class="fg"><div class="flbl M">ご要望・備考 <span class="op">任意</span></div><textarea class="fi" rows="3" placeholder="アレルギーや特別なご要望などご自由にお書きください" style="resize:none;line-height:1.7;"></textarea></div>
+  <div class="fg"><div class="flbl M">お名前 <span class="rq">必須</span></div><input class="fi" type="text" id="customer-name" placeholder="山田 太郎"></div>
+  <div class="fg"><div class="flbl M">電話番号 <span class="rq">必須</span></div><input class="fi" type="tel" id="customer-phone" placeholder="090-0000-0000"></div>
+  <div class="fg"><div class="flbl M">メールアドレス <span class="rq">必須</span></div><input class="fi" type="email" id="customer-email" placeholder="example@email.com"><div class="fh">注文確認メールをお送りします</div></div>
+  <div class="fg"><div class="flbl M">ご要望・備考 <span class="op">任意</span></div><textarea class="fi" id="customer-note" rows="3" placeholder="アレルギーや特別なご要望などご自由にお書きください" style="resize:none;line-height:1.7;"></textarea></div>
 </div>
 <div style="height:65px;"></div>
 <div class="bb"><button class="bmain M" onclick="openPayment()">お支払いへ進む</button></div>
