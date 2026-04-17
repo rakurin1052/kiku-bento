@@ -151,6 +151,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
   .htitle{font-size:28px;}
 }
 </style>
+<script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
 </head>
 <body>
 <div class="topbar"></div>
@@ -288,7 +289,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
   <div class="fg"><div class="flbl M">ご要望・備考 <span class="op">任意</span></div><textarea class="fi" rows="3" placeholder="アレルギーや特別なご要望などご自由にお書きください" style="resize:none;line-height:1.7;"></textarea></div>
 </div>
 <div style="height:65px;"></div>
-<div class="bb"><button class="bmain M" onclick="gT(5)">お支払いへ進む</button></div>
+<div class="bb"><button class="bmain M" onclick="openPayment()">お支払いへ進む</button></div>
 </div>
 
 <!-- PAGE 5 -->
@@ -318,6 +319,97 @@ function rCal(){var mn=['1月','2月','3月','4月','5月','6月','7月','8月',
 function selD(ds){sd=ds;rCal();var btn=document.getElementById('nb2');btn.disabled=false;btn.textContent=ds+'に受け取る';}
 function chM(d){cm+=d;if(cm>11){cm=0;cy++;}if(cm<0){cm=11;cy--;}rCal();}
 rCal();
+</script>
+<div id="square-payment-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:24px;width:90%;max-width:400px;border-radius:4px;">
+    <div style="font-family:'Noto Serif JP',serif;font-size:16px;font-weight:700;color:#1e1808;margin-bottom:16px;letter-spacing:0.1em;">お支払い</div>
+    <div id="card-container"></div>
+    <div id="payment-status" style="font-size:11px;color:#8b1a1a;margin-top:8px;"></div>
+    <button id="card-button" style="width:100%;background:#b8960c;color:#fff;font-size:12px;font-weight:500;padding:12px;border:none;cursor:pointer;font-family:'Noto Serif JP',serif;letter-spacing:0.1em;margin-top:12px;" onclick="handlePayment()">決済する</button>
+    <button onclick="closePayment()" style="width:100%;background:#fff;color:rgba(30,24,8,0.5);font-size:11px;padding:10px;border:1px solid #e5ddc8;cursor:pointer;font-family:'Noto Serif JP',serif;margin-top:8px;">キャンセル</button>
+  </div>
+</div>
+<script>
+const SQUARE_APP_ID = 'sandbox-sq0idb-HxL9rjiSQij59A-pOMoPOA';
+const SQUARE_LOCATION_ID = 'LB9Y5T27BCK9E';
+
+let payments;
+let card;
+
+async function initSquare() {
+  payments = Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+  card = await payments.card();
+  await card.attach('#card-container');
+}
+
+async function openPayment() {
+  const modal = document.getElementById('square-payment-modal');
+  modal.style.display = 'flex';
+  if (!card) {
+    await initSquare();
+  }
+}
+
+function closePayment() {
+  const modal = document.getElementById('square-payment-modal');
+  modal.style.display = 'none';
+}
+
+async function handlePayment() {
+  const statusEl = document.getElementById('payment-status');
+  const btn = document.getElementById('card-button');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+  statusEl.textContent = '';
+
+  try {
+    const result = await card.tokenize();
+    if (result.status === 'OK') {
+      const token = result.token;
+      const sub = cSub();
+      const tax = Math.round(sub * 0.08);
+      const total = sub + tax;
+
+      const response = await fetch('https://connect.squareupsandbox.com/v2/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'EAAAl4wypk_WCB44lSf_d61BgPRxcBW0hiD7nizVdJL8OYsMUKT2D281mEN9A-LH', // Sandbox Access Tokenをここに貼り付け
+          'Square-Version': '2024-01-17'
+        },
+        body: JSON.stringify({
+          source_id: token,
+          amount_money: {
+            amount: total,
+            currency: 'JPY'
+          },
+          idempotency_key: crypto.randomUUID(),
+          location_id: SQUARE_LOCATION_ID,
+          note: `受け取り日：${sd || '未選択'}`
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.payment && data.payment.status === 'COMPLETED') {
+        closePayment();
+        gT(5);
+      } else {
+        statusEl.textContent = '決済に失敗しました。カード情報をご確認ください。';
+        btn.disabled = false;
+        btn.textContent = '決済する';
+      }
+    } else {
+      statusEl.textContent = 'カード情報をご確認ください。';
+      btn.disabled = false;
+      btn.textContent = '決済する';
+    }
+  } catch (e) {
+    statusEl.textContent = '通信エラーが発生しました。';
+    btn.disabled = false;
+    btn.textContent = '決済する';
+  }
+}
 </script>
 </body>
 </html>
